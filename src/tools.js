@@ -308,5 +308,6 @@ export const FINANCE_TOOL_NAMES = [
     'mcp__finance-tools__get_category_spending',
     'mcp__finance-tools__get_recent_transactions',
     'mcp__finance-tools__get_accounts',
-    'mcp__finance-tools__sync_transactions'
+    'mcp__finance-tools__sync_transactions',
+    'mcp__finance-tools__create_payment_link'
 ];
