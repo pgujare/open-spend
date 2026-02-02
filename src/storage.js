@@ -110,6 +110,40 @@ export function getCachedTransactions(userId) {
 }
 
 // ============================================
+// Chat History Management
+// ============================================
+
+export function getChatHistory(userId) {
+  const data = loadConnections();
+  // Ensure chatHistory exists in data
+  if (!data.chatHistory) {
+    data.chatHistory = {};
+  }
+  return data.chatHistory[userId] || [];
+}
+
+export function appendChatHistory(userId, role, content) {
+  const data = loadConnections();
+  if (!data.chatHistory) {
+    data.chatHistory = {};
+  }
+
+  if (!data.chatHistory[userId]) {
+    data.chatHistory[userId] = [];
+  }
+
+  // Add new message
+  data.chatHistory[userId].push({ role, content, timestamp: new Date().toISOString() });
+
+  // Keep only last 20 messages to prevent infinite growth
+  if (data.chatHistory[userId].length > 20) {
+    data.chatHistory[userId] = data.chatHistory[userId].slice(-20);
+  }
+
+  saveConnections(data);
+}
+
+// ============================================
 // Data Access Functions
 // ============================================
 

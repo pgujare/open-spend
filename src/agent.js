@@ -4,7 +4,7 @@
 
 import { query } from '@anthropic-ai/claude-agent-sdk';
 import { createFinanceServer, FINANCE_TOOL_NAMES } from './tools.js';
-import { hasPlaidConnection } from './storage.js';
+import { hasPlaidConnection, getChatHistory, appendChatHistory } from './storage.js';
 
 const SYSTEM_PROMPT = `You are a helpful personal finance assistant with access to the user's bank account and credit card transaction data.
 
@@ -15,6 +15,7 @@ Your capabilities:
 - Provide insights on spending patterns
 - Show income summaries
 - Sync latest transactions from connected banks
+- Create Venmo payment links to request or split money
 
 Guidelines:
 - Be friendly and conversational
@@ -42,6 +43,19 @@ export async function processMessage(userId, userMessage) {
 
     // Create streaming input generator (required for MCP tools)
     async function* generateMessages() {
+        // 1. Replay history
+        const history = getChatHistory(userId);
+        for (const msg of history) {
+            yield {
+                type: 'user', // Note: effectively "simulating" the conversation
+                message: {
+                    role: msg.role === 'user' ? 'user' : 'assistant',
+                    content: msg.content
+                }
+            };
+        }
+
+        // 2. Add current message
         yield {
             type: 'user',
             message: {
@@ -81,7 +95,12 @@ export async function processMessage(userId, userMessage) {
             }
         }
 
-        return result || 'I processed your request.';
+        // Save new turn to history
+        appendChatHistory(userId, 'user', userMessage);
+        const finalResponse = result || 'I processed your request.';
+        appendChatHistory(userId, 'assistant', finalResponse);
+
+        return finalResponse;
 
     } catch (error) {
         console.error('Agent error:', error);
