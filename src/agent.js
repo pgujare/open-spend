@@ -35,27 +35,23 @@ export async function processMessage(userId, userMessage) {
     // Create finance server with user-specific data
     const financeServer = createFinanceServer(userId);
 
+    // Get chat history and format it
+    const history = getChatHistory(userId);
+    const historyContext = history.length > 0
+        ? '\n\nRECENT CONVERSATION HISTORY:\n' + history.map(msg => `${msg.role.toUpperCase()}: ${msg.content}`).join('\n')
+        : '';
+
     // Add context about data source
     const hasPlaid = hasPlaidConnection(userId);
-    const systemWithContext = SYSTEM_PROMPT + (hasPlaid
-        ? '\n\nThis user has connected their bank account via Plaid. Data is real.'
-        : '\n\nThis user is using demo data. Suggest using /connect to link a real bank account.');
+    const systemWithContext = SYSTEM_PROMPT +
+        (hasPlaid
+            ? '\n\nThis user has connected their bank account via Plaid. Data is real.'
+            : '\n\nThis user is using demo data. Suggest using /connect to link a real bank account.') +
+        historyContext;
 
     // Create streaming input generator (required for MCP tools)
     async function* generateMessages() {
-        // 1. Replay history
-        const history = getChatHistory(userId);
-        for (const msg of history) {
-            yield {
-                type: 'user', // Note: effectively "simulating" the conversation
-                message: {
-                    role: msg.role === 'user' ? 'user' : 'assistant',
-                    content: msg.content
-                }
-            };
-        }
-
-        // 2. Add current message
+        // Only yield the current message
         yield {
             type: 'user',
             message: {
