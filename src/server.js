@@ -240,8 +240,8 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🌐 Plaid Link server running at http://localhost:${PORT}`);
-  console.log(`   Connect URL pattern: http://localhost:${PORT}/link/{userId}`);
+// Start server - bind to 0.0.0.0 for Railway
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🌐 Plaid Link server running on port ${PORT}`);
+  console.log(`   Connect URL pattern: ${process.env.SERVER_URL}/link/{userId}`);
 });
