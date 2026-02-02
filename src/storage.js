@@ -143,6 +143,15 @@ export function appendChatHistory(userId, role, content) {
   saveConnections(data);
 }
 
+export function clearChatHistory(userId) {
+  const data = loadConnections();
+  if (data.chatHistory && data.chatHistory[userId]) {
+    delete data.chatHistory[userId];
+    saveConnections(data);
+    console.log(`🧹 Cleared chat history for user ${userId}`);
+  }
+}
+
 // ============================================
 // Data Access Functions
 // ============================================

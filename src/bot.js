@@ -110,6 +110,17 @@ bot.onText(/\/disconnect/, (msg) => {
     bot.sendMessage(chatId, '⚠️ To disconnect your bank, please restart the bot. (Full disconnect coming soon)');
 });
 
+// Handle /clear command - clear conversation history
+bot.onText(/\/clear/, (msg) => {
+    const chatId = msg.chat.id;
+    const userId = msg.from.id.toString();
+
+    const { clearChatHistory } = require('./storage.js');
+    clearChatHistory(userId);
+
+    bot.sendMessage(chatId, '🧹 Conversation history cleared! Starting fresh.');
+});
+
 // Handle /help command
 bot.onText(/\/help/, (msg) => {
     const chatId = msg.chat.id;
@@ -119,6 +130,7 @@ bot.onText(/\/help/, (msg) => {
 • /start - Welcome message
 • /connect - Link your bank account
 • /sync - Refresh transaction data
+• /clear - Clear conversation history
 • /help - This help message
 
 **Ask me things like:**
