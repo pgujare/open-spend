@@ -268,6 +268,32 @@ export function createFinanceServer(userId) {
                         };
                     }
                 }
+            ),
+
+            tool(
+                'create_payment_link',
+                'Generate a Venmo link to request or send money. Use when user says "Split bill with X" or "Ask X for money".',
+                {
+                    amount: z.number().describe('The amount to pay or request (e.g. 20.50)'),
+                    description: z.string().describe('Note for the transaction (e.g. "Dinner", "Rent")'),
+                    type: z.enum(['charge', 'pay']).default('charge').describe('Type of transaction: "charge" to request money, "pay" to send money')
+                },
+                async ({ amount, description, type }) => {
+                    const venmoUser = process.env.VENMO_USERNAME || 'parth_gujare'; // Fallback if not set
+
+                    // Construct Venmo deep link
+                    // txn=charge (Request) | txn=pay (Send)
+                    const link = `https://venmo.com/?txn=${type}&recipients=${venmoUser}&amount=${amount.toFixed(2)}&note=${encodeURIComponent(description)}`;
+
+                    const action = type === 'charge' ? 'Requesting' : 'Sending';
+
+                    return {
+                        content: [{
+                            type: 'text',
+                            text: `Here is the Venmo link to ${type} $${amount.toFixed(2)} for "${description}":\n\n${link}\n\nYou can forward this link to the person.`
+                        }]
+                    };
+                }
             )
         ]
     });
