@@ -25,14 +25,14 @@ if (!process.env.ANTHROPIC_API_KEY) {
 const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
 const SERVER_URL = process.env.SERVER_URL || 'http://localhost:3000';
 
-console.log('🤖 Personal Finance Bot is starting...');
+console.log('OpenSpend is starting...');
 
 // Handle /start command
 bot.onText(/\/start/, (msg) => {
     const chatId = msg.chat.id;
     const hasPlaid = hasPlaidConnection(msg.from.id.toString());
 
-    let welcomeMessage = `👋 Welcome to your Personal Finance Bot!
+    let welcomeMessage = `👋 Welcome to OpenSpend!
 
 I can help you understand your finances. Try asking me:
 
@@ -42,7 +42,7 @@ I can help you understand your finances. Try asking me:
 💵 "How much income this month?"`;
 
     if (!hasPlaid) {
-        welcomeMessage += `\n\n🔗 **Connect your bank:** /connect`;
+        welcomeMessage += `\n\n🔗 **Connect your accounts:** /connect`;
     } else {
         welcomeMessage += `\n\n✅ Bank connected! Use /sync to refresh data.`;
     }
